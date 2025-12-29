@@ -3,7 +3,7 @@
 
 ///|
 /// JWWシグネチャ
-fn signature() -> Bytes {
+pub fn signature() -> Bytes {
   b"JwwData."
 }
 

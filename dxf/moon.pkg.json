@@ -1,0 +1,6 @@
+{
+  "import": [
+    { "path": "f4ah6o/jww_parser/core", "alias": "core" },
+    { "path": "moonbitlang/quickcheck", "alias": "qc" }
+  ]
+}

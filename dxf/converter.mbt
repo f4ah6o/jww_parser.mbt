@@ -3,7 +3,7 @@
 
 ///|
 /// 円周率
-fn pi_value() -> Double {
+pub fn pi_value() -> Double {
   3.141592653589793
 }
 
@@ -66,7 +66,7 @@ fn convert_entities(jww_doc~ : @core.Document) -> Array[DxfEntity] {
 
 ///|
 /// 単一のJWWエンティティをDXFエンティティに変換する
-fn convert_entity(entity~ : @core.Entity, jww_doc~ : @core.Document) -> Option[DxfEntity] {
+pub fn convert_entity(entity~ : @core.Entity, jww_doc~ : @core.Document) -> Option[DxfEntity] {
   let base = @core.Entity::base(entity)
   let layer_name = get_layer_name(jww_doc=jww_doc, layer_group=base.layer_group, layer=base.layer)
   let color = map_color(jww_color=base.pen_color)
@@ -234,7 +234,7 @@ fn convert_blocks(jww_doc~ : @core.Document) -> Array[DxfBlock] {
 
 ///|
 /// レイヤー名を取得する
-fn get_layer_name(jww_doc~ : @core.Document, layer_group~ : UInt16, layer~ : UInt16) -> String {
+pub fn get_layer_name(jww_doc~ : @core.Document, layer_group~ : UInt16, layer~ : UInt16) -> String {
   let lg = layer_group
   let l = layer
 
@@ -264,7 +264,7 @@ fn get_block_name(jww_doc~ : @core.Document, def_number~ : UInt) -> String {
 
 ///|
 /// JWW色コードをDXF ACI値にマッピングする
-fn map_color(jww_color~ : UInt16) -> Int {
+pub fn map_color(jww_color~ : UInt16) -> Int {
   match jww_color {
     0 => 0     // BYLAYER
     1 => 4     // JWW 水色 -> DXF cyan
@@ -288,7 +288,7 @@ fn map_color(jww_color~ : UInt16) -> Int {
 
 ///|
 /// JWW線種をDXF線種名にマッピングする
-fn map_line_type(pen_style~ : Byte) -> String {
+pub fn map_line_type(pen_style~ : Byte) -> String {
   match pen_style {
     0 | 1 => "CONTINUOUS"
     2 => "DASHED"
@@ -305,6 +305,6 @@ fn map_line_type(pen_style~ : Byte) -> String {
 
 ///|
 /// ラジアンを度に変換する
-fn rad_to_deg(rad~ : Double) -> Double {
+pub fn rad_to_deg(rad~ : Double) -> Double {
   rad * 180.0 / pi_value()
 }

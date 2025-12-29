@@ -24,7 +24,7 @@ pub struct EntityBase {
 
   /// 各種属性フラグ
   flag : UInt16
-}
+} derive(Show, Eq)
 
 ///|
 /// 直線エンティティ (JWWクラス: CDataSen)
@@ -34,7 +34,7 @@ pub struct Line {
   start_y : Double
   end_x : Double
   end_y : Double
-}
+} derive(Show, Eq)
 
 ///|
 /// 円弧/円エンティティ (JWWクラス: CDataEnko)
@@ -48,7 +48,7 @@ pub struct Arc {
   tilt_angle : Double   // ラジアン（楕円の場合）
   flatness : Double     // 1.0は真円、それ以外は楕円
   is_full_circle : Bool
-}
+} derive(Show, Eq)
 
 ///|
 /// 点エンティティ (JWWクラス: CDataTen)
@@ -60,7 +60,7 @@ pub struct Point {
   code : UInt
   angle : Double
   scale : Double
-}
+} derive(Show, Eq)
 
 ///|
 /// 文字エンティティ (JWWクラス: CDataMoji)
@@ -77,7 +77,7 @@ pub struct Text {
   angle : Double    // 回転角度（度）
   font_name : String
   content : String
-}
+} derive(Show, Eq)
 
 ///|
 /// 塗りつぶしエンティティ (JWWクラス: CDataSolid)
@@ -92,7 +92,7 @@ pub struct Solid {
   point4_x : Double
   point4_y : Double
   color : UInt  // pen_color == 10の時使用
-}
+} derive(Show, Eq)
 
 ///|
 /// ブロック挿入エンティティ (JWWクラス: CDataBlock)
@@ -104,7 +104,7 @@ pub struct Block {
   scale_y : Double
   rotation : Double  // ラジアン
   def_number : UInt  // 参照先ブロック定義番号
-}
+} derive(Show, Eq)
 
 ///|
 /// エンティティ種別
@@ -115,7 +115,7 @@ pub enum Entity {
   Text(Text)
   Solid(Solid)
   Block(Block)
-}
+} derive(Show, Eq)
 
 ///|
 /// 個別レイヤ
@@ -124,7 +124,7 @@ pub struct Layer {
   state : UInt
   protect : UInt
   name : String
-}
+} derive(Show, Eq)
 
 ///|
 /// レイヤグループ（16個のレイヤを含む）
@@ -141,7 +141,7 @@ pub struct LayerGroup {
   layers : Array[Layer]
   /// レイヤグループ名
   name : String
-}
+} derive(Show, Eq)
 
 ///|
 /// ブロック定義
@@ -151,7 +151,7 @@ pub struct BlockDef {
   is_referenced : Bool
   name : String
   entities : Array[Entity]
-}
+} derive(Show, Eq)
 
 ///|
 /// JWWドキュメント全体
@@ -170,7 +170,7 @@ pub struct Document {
   entities : Array[Entity]
   /// ブロック定義
   block_defs : Array[BlockDef]
-}
+} derive(Show, Eq)
 
 ///|
 /// EntityBaseのデフォルト値
