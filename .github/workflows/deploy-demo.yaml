@@ -31,17 +31,8 @@ jobs:
           node-version: '24'
           cache: 'pnpm'
 
-      - name: Setup MoonBit
-        run: |
-          echo "Installing MoonBit CLI..."
-          curl -fsSL https://cli.moonbitlang.com/install.sh | bash
-          echo "$HOME/.moon/bin" >> $GITHUB_PATH
-
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-
-      - name: Build MoonBit WASM-GC
-        run: moon build --target wasm-gc
 
       - name: Build demo
         working-directory: examples

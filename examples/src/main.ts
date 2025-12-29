@@ -1,7 +1,7 @@
 import DxfParser from "@f12o/dxf-parser";
 import { Viewer } from "@f12o/three-dxf";
+import { jww_to_dxf } from "jww-parser-mbt";
 import "./styles.css";
-import { loadWasm, isWasmSupported } from "./wasm-loader";
 
 type StatusType = "info" | "success" | "error";
 
@@ -13,6 +13,7 @@ type ProgressUpdate = {
 
 // Get commit hash from env or use placeholder
 const BUILD_COMMIT = import.meta.env.VITE_COMMIT_HASH ?? "dev";
+const PACKAGE_VERSION = "2025.12.1";
 
 const elements = {
   fileInput: document.getElementById("fileInput") as HTMLInputElement,
@@ -29,7 +30,6 @@ const elements = {
 };
 
 let selectedFile: File | null = null;
-let wasmReady = false;
 let downloadUrl: string | null = null;
 
 // Initialize
@@ -37,24 +37,9 @@ init();
 
 async function init(): Promise<void> {
   setCommitHash();
+  setVersion();
   attachEventHandlers();
-
-  if (!isWasmSupported()) {
-    setStatus("WASM がサポートされていないブラウザです。", "error");
-    return;
-  }
-
-  try {
-    setStatus("WASM を読み込んでいます…");
-    await loadWasm();
-    wasmReady = true;
-    setStatus("WASM がロードされました。JWW ファイルを選択してください。", "success");
-    updateConvertButton();
-  } catch (error) {
-    console.error(error);
-    const message = error instanceof Error ? error.message : "Unknown WASM load error";
-    setStatus(`WASM のロードに失敗しました: ${message}`, "error");
-  }
+  setStatus("JWW ファイルを選択してください。", "success");
 }
 
 function attachEventHandlers(): void {
@@ -78,7 +63,7 @@ function setStatus(message: string, type: StatusType = "info"): void {
 }
 
 function updateConvertButton(): void {
-  elements.convertBtn.disabled = !wasmReady || !selectedFile;
+  elements.convertBtn.disabled = !selectedFile;
 }
 
 async function convertFile(): Promise<void> {
@@ -87,21 +72,14 @@ async function convertFile(): Promise<void> {
     return;
   }
 
-  if (!wasmReady) {
-    alert("WASM のロードに失敗しています。ページを再読み込みしてください。");
-    return;
-  }
-
   try {
     setStatus("JWW を読み込み中…");
     const buffer = await selectedFile.arrayBuffer();
     const bytes = new Uint8Array(buffer);
 
-    const wasm = await loadWasm();
-
-    // Convert JWW to DXF string using MoonBit WASM
+    // Convert JWW to DXF string using jww-parser-mbt
     setStatus("DXF を生成しています…");
-    const dxfString = wasm.jww_to_dxf(bytes);
+    const dxfString = jww_to_dxf(bytes);
 
     if (!dxfString) {
       throw new Error("DXF 変換に失敗しました");
@@ -204,4 +182,9 @@ function resetViewer(message: string): void {
 function setCommitHash(): void {
   if (!elements.commitHash) return;
   elements.commitHash.textContent = BUILD_COMMIT;
+}
+
+function setVersion(): void {
+  if (!elements.jwwVersion) return;
+  elements.jwwVersion.textContent = PACKAGE_VERSION;
 }
