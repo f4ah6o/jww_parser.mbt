@@ -110,12 +110,14 @@ fn read_cstring(reader~ : Reader) -> String {
     return ""
   }
 
-  // 残りデータが不足している場合は空文字列を返す
-  if reader.remaining() < length {
-    return ""
+  // 残りデータが不足している場合は可能な範囲で読み取る
+  let actual_length = if reader.remaining() < length {
+    reader.remaining()
+  } else {
+    length
   }
 
-  let bytes = reader.read_bytes(n=length)
+  let bytes = reader.read_bytes(n=actual_length)
   @encoding_sjis_mbt.shift_jis_to_utf8(data=bytes)
 }
 
@@ -222,9 +224,10 @@ fn parse_entity_list(data~ : Bytes, offset~ : Int, version~ : UInt) -> EntityLis
 
   let entities = Array::new()
 
-  // MFC CArchive PIDトラッキング - 簡易実装のためHashMapは使用せず配列で管理
+  // MFC CArchive PIDトラッキング
+  // PIDはUInt16で最大65536まで可能なため、十分なサイズの配列を確保
   let mut pid_to_class = Array::new()
-  for _ in 0..<256 {
+  for _ in 0..<65536 {
     pid_to_class.push("")
   }
   let mut next_pid : UInt = 1U
@@ -282,7 +285,7 @@ fn parse_entity_with_pid_tracking(
     // PIDを登録
     let pid = next_pid
     let new_p2c = pid_to_class
-    if pid.reinterpret_as_int() < 256 {
+    if pid.reinterpret_as_int() < 65536 {
       new_p2c[pid.reinterpret_as_int()] = class_name
     }
     (class_name, new_p2c, pid + 1)
@@ -292,7 +295,7 @@ fn parse_entity_with_pid_tracking(
   } else {
     // クラス参照: 0x8000 | class_pid
     let class_pid = (class_id & 0x7FFF)
-    if class_pid < 256 {
+    if class_pid < 65536 {
       let name = pid_to_class[class_pid]
       if name == "" {
         return { entity: None, pid_to_class: pid_to_class, next_pid: next_pid + 1 }

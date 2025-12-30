@@ -12,9 +12,9 @@ console.log('Patching', jsFile);
 
 let content = fs.readFileSync(jsFile, 'utf-8');
 
-// read_double 関数を探して置換
-const oldPattern = /function f4ah6o\$jww_parser\$core\$\$Reader\$read_double\(self\) \{[\s\S]*?\n\}/;
-const newFunction = `function f4ah6o$jww_parser$core$$Reader$read_double(self) {
+// read_double 関数を探して置換（$ の数はビルドごとに変わる可能性があるため寛容にマッチ）
+const oldPattern = /function f4ah6o\$jww_parser\$core\$+\$?Reader\$read_double\(self\) \{[\s\S]*?\n\}/;
+const newFunction = `function f4ah6o$jww_parser$core$Reader$read_double(self) {
   // DataView.getFloat64 を使用して IEEE 754 double を読み取る
   const buffer = new ArrayBuffer(8);
   const view = new DataView(buffer);
