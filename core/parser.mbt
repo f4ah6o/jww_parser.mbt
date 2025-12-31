@@ -118,7 +118,7 @@ fn read_cstring(reader~ : Reader) -> String {
   }
 
   let bytes = reader.read_bytes(n=actual_length)
-  @encoding_sjis_mbt.shift_jis_to_utf8(data=bytes)
+  @encoding_sjis.shift_jis_to_utf8(data=bytes)
 }
 
 ///|

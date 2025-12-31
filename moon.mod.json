@@ -3,9 +3,7 @@
   "version": "2025.12.7",
   "deps": {
     "moonbitlang/quickcheck": "0.9.8",
-    "f4ah6o/encoding_sjis_mbt": {
-      "path": "encoding_sjis_mbt"
-    }
+    "f4ah6o/encoding_sjis": "*"
   },
   "readme": "README.mbt.md",
   "repository": "",
