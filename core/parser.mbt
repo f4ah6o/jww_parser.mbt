@@ -401,8 +401,8 @@ fn parse_entity_by_class(
     let angle = reader.read_double()
     let font_name = read_cstring(reader~)
     let content = read_cstring(reader~)
-    // ^@BMで始まる場合は画像エンティティとして処理
-    if content.has_prefix("^@BM") {
+    // ^@BMを含む場合は画像エンティティとして処理
+    if find_bm_marker(content~) is Some(_) {
       match parse_image_from_bm_string(content~, base~, start_x~, start_y~, angle~, size_x~, size_y~) {
         Some(image) => Some(Entity::Image(image))
         None =>
@@ -688,6 +688,26 @@ fn parse_block_def_with_tracking(
 }
 
 ///|
+/// 文字列内の ^@BM マーカーの位置を見つける
+fn find_bm_marker(content~ : String) -> Int? {
+  let chars = content.to_array()
+  let len = chars.length()
+
+  // "^@BM" (4文字: ^ @ B M) の位置を探す
+  if len < 4 {
+    return None
+  }
+  let mut i = 0
+  while i < len - 3 {
+    if chars[i] == '^' && chars[i + 1] == '@' && chars[i + 2] == 'B' && chars[i + 3] == 'M' {
+      return Some(i)
+    }
+    i = i + 1
+  }
+  None
+}
+
+///|
 /// @BM形式の文字列から画像情報をパースする
 fn parse_image_from_bm_string(
   content~ : String,
@@ -698,12 +718,17 @@ fn parse_image_from_bm_string(
   size_x~ : Double,
   size_y~ : Double,
 ) -> Image? {
-  // "^@BM" を除去 (4文字)
+  // ^@BM の位置を見つける
+  let bm_offset = match find_bm_marker(content~) {
+    Some(offset) => offset
+    None => return None
+  }
+  // "^@BM" (4文字) を除去
   let chars = content.to_array()
-  if chars.length() <= 4 {
+  if chars.length() <= bm_offset + 4 {
     return None
   }
-  let path_and_params = String::from_array(chars[4:])
+  let path_and_params = String::from_array(chars[bm_offset + 4:])
   // カンマで分割
   let parts = split_by_comma(path_and_params~)
   if parts.length() < 1 {
