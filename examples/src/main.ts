@@ -1,4 +1,4 @@
-import { parse, to_json_string } from "jww-parser-mbt";
+import { parse, to_json_string } from "jww-parser";
 import "./styles.css";
 
 type StatusType = "info" | "success" | "error";
