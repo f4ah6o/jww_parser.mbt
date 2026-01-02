@@ -113,6 +113,34 @@ pub struct Image {
 } derive(Show, Eq)
 
 ///|
+/// 画像フォーマット種別（マジックバイトから検出）
+pub enum ImageFormat {
+  /// 未検出または不明
+  Unknown
+  /// JPEG形式 (FF D8 FF)
+  Jpeg
+  /// PNG形式 (89 50 4E 47)
+  Png
+  /// BMP形式 (42 4D)
+  Bmp
+  /// GIF形式 (47 49 46 38)
+  Gif
+} derive(Show, Eq)
+
+///|
+/// 同梱画像データ (Ver.7.00+)
+pub struct EmbeddedImage {
+  /// 画像のインデックス（0始まり）
+  index : UInt
+  /// ファイルサイズ（バイト）
+  file_size : UInt
+  /// 画像データ（生バイナリ）
+  data : Bytes
+  /// 画像フォーマット（マジックバイトから検出）
+  format : ImageFormat
+} derive(Show, Eq)
+
+///|
 /// エンティティ種別
 pub enum Entity {
   Line(Line)
@@ -177,6 +205,8 @@ pub struct Document {
   entities : Array[Entity]
   /// ブロック定義
   block_defs : Array[BlockDef]
+  /// 同梱画像 (Ver.7.00+)
+  embedded_images : Array[EmbeddedImage]
 } derive(Show, Eq)
 
 ///|
@@ -226,6 +256,7 @@ pub fn Document::default() -> Document {
     layer_groups,
     entities: Array::new(),
     block_defs: Array::new(),
+    embedded_images: Array::new(),
   }
 }
 

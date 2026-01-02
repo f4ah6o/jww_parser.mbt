@@ -48,16 +48,28 @@ pub fn parse(data~ : Bytes) -> Document {
 
   // エンティティリスト開始位置を探索
   let entity_offset = find_entity_list_offset(data~, version~)
-  let (entities, block_defs) = match entity_offset {
+  let (entities, block_defs, block_end_offset) = match entity_offset {
     Some(offset) => {
       let entity_result = parse_entity_list(data~, offset~, version~)
       // エンティティリストの直後にブロック定義リストがある
       let block_offset = offset + entity_result.bytes_consumed
-      let blocks = parse_block_def_list(data~, offset=block_offset, version~)
-      (entity_result.entities, blocks)
+      let block_result = parse_block_def_list(data~, offset=block_offset, version~)
+      (
+        entity_result.entities,
+        block_result.block_defs,
+        block_result.end_offset,
+      )
     }
-    None => (Array::new(), Array::new())
+    None => (Array::new(), Array::new(), 0)
   }
+
+  // Ver.7.00以上の場合、同梱画像をパース
+  let embedded_images =
+    if version >= 700 {
+      parse_embedded_images(data~, offset=block_end_offset, version~)
+    } else {
+      Array::new()
+    }
 
   // レイヤー名を設定
   let named_layer_groups = set_layer_names(layer_groups~)
@@ -69,6 +81,7 @@ pub fn parse(data~ : Bytes) -> Document {
     layer_groups: named_layer_groups,
     entities,
     block_defs,
+    embedded_images,
   }
 }
 
@@ -389,7 +402,16 @@ fn parse_entity_by_class(
     let content = read_cstring(reader~)
     // ^@BMを含む場合は画像エンティティとして処理
     if find_bm_marker(content~) is Some(_) {
-      match parse_image_from_bm_string(content~, base~, start_x~, start_y~, angle~, size_x~, size_y~) {
+      match
+        parse_image_from_bm_string(
+          content~,
+          base~,
+          start_x~,
+          start_y~,
+          angle~,
+          size_x~,
+          size_y~,
+        ) {
         Some(image) => Some(Entity::Image(image))
         None =>
           Some(
@@ -538,28 +560,36 @@ fn parse_entity_base(reader~ : Reader, version~ : UInt) -> EntityBase {
 }
 
 ///|
+/// ブロック定義リストパース結果
+priv struct BlockDefListResult {
+  block_defs : Array[BlockDef]
+  end_offset : Int
+}
+
+///|
 /// ブロック定義リストをパースする
 fn parse_block_def_list(
   data~ : Bytes,
   offset~ : Int,
   version~ : UInt,
-) -> Array[BlockDef] {
+) -> BlockDefListResult {
   // offsetがデータ範囲外の場合は空配列を返す
   if offset >= data.length() {
-    return Array::new()
+    return { block_defs: Array::new(), end_offset: offset }
   }
   let block_data = Bytes::from_array(data.to_array()[offset:data.length()])
   let reader = Reader::new(data=block_data)
+  let start_pos = reader.position()
 
   // データが4バイト未満の場合は空配列を返す
   if reader.remaining() < 4 {
-    return Array::new()
+    return { block_defs: Array::new(), end_offset: offset }
   }
   let count = reader.read_dword()
 
   // カウントが異常な値の場合は空配列を返す
   if count > 10000U {
-    return Array::new()
+    return { block_defs: Array::new(), end_offset: offset }
   }
   let block_defs = Array::new()
 
@@ -590,7 +620,8 @@ fn parse_block_def_list(
     class_map = result.class_map
     next_id = result.next_id
   }
-  block_defs
+  let end_pos = reader.position()
+  { block_defs, end_offset: offset + (end_pos - start_pos) }
 }
 
 ///|
@@ -685,7 +716,10 @@ fn find_bm_marker(content~ : String) -> Int? {
   }
   let mut i = 0
   while i < len - 3 {
-    if chars[i] == '^' && chars[i + 1] == '@' && chars[i + 2] == 'B' && chars[i + 3] == 'M' {
+    if chars[i] == '^' &&
+      chars[i + 1] == '@' &&
+      chars[i + 2] == 'B' &&
+      chars[i + 3] == 'M' {
       return Some(i)
     }
     i = i + 1
@@ -734,17 +768,15 @@ fn parse_image_from_bm_string(
   } else {
     size_y
   }
-  Some(
-    {
-      base,
-      image_path,
-      x: start_x,
-      y: start_y,
-      width,
-      height,
-      rotation: angle,
-    },
-  )
+  Some({
+    base,
+    image_path,
+    x: start_x,
+    y: start_y,
+    width,
+    height,
+    rotation: angle,
+  })
 }
 
 ///|
@@ -795,9 +827,139 @@ fn normalize_image_path(raw_path~ : String) -> String {
 ///|
 /// 文字列をDoubleにパースする（失敗時はデフォルト値を返す）
 fn parse_double_or_default(s : String, default : Double) -> Double {
-  try {
-    @strconv.parse_double(s)
-  } catch {
+  @strconv.parse_double(s) catch {
     _ => default
   }
+}
+
+///|
+/// 画像データのフォーマットをマジックバイトから検出する
+fn detect_image_format(data~ : Bytes) -> ImageFormat {
+  if data.length() < 4 {
+    return ImageFormat::Unknown
+  }
+
+  let b0 = data[0].to_int()
+  let b1 = data[1].to_int()
+  let b2 = data[2].to_int()
+  let b3 = data[3].to_int()
+
+  // JPEG: FF D8 FF
+  if b0 == 0xFF && b1 == 0xD8 && b2 == 0xFF {
+    return ImageFormat::Jpeg
+  }
+
+  // PNG: 89 50 4E 47 (...PNG)
+  if b0 == 0x89 && b1 == 0x50 && b2 == 0x4E && b3 == 0x47 {
+    return ImageFormat::Png
+  }
+
+  // BMP: 42 4D (BM)
+  if b0 == 0x42 && b1 == 0x4D {
+    return ImageFormat::Bmp
+  }
+
+  // GIF: 47 49 46 38 (GIF8)
+  if b0 == 0x47 && b1 == 0x49 && b2 == 0x46 && b3 == 0x38 {
+    return ImageFormat::Gif
+  }
+
+  ImageFormat::Unknown
+}
+
+///|
+/// 単一の同梱画像をパースする
+fn parse_single_embedded_image(
+  reader~ : Reader,
+  index~ : UInt,
+) -> EmbeddedImage? {
+  // ファイルサイズを読み取り (DWORD = 4バイト)
+  if reader.remaining() < 4 {
+    return None
+  }
+
+  let file_size = reader.read_dword()
+
+  // ファイルサイズの妥当性チェック
+  // 0バイトまたは過度に大きい場合はエラー
+  if file_size == 0U || file_size > 100_000_000U {
+    // 100MB上限
+    return None
+  }
+
+  let file_size_int = file_size.reinterpret_as_int()
+
+  // 残りデータが不足している場合はNoneを返す
+  if reader.remaining() < file_size_int {
+    return None
+  }
+
+  // 画像データを読み取り
+  let image_data = reader.read_bytes(n=file_size_int)
+
+  // データが空の場合はNoneを返す
+  if image_data.length() == 0 {
+    return None
+  }
+
+  // 画像フォーマットを検出
+  let format = detect_image_format(data=image_data)
+
+  Some({
+    index,
+    file_size,
+    data: image_data,
+    format,
+  })
+}
+
+///|
+/// 同梱画像リストをパースする (Ver.7.00+)
+fn parse_embedded_images(
+  data~ : Bytes,
+  offset~ : Int,
+  version~ : UInt,
+) -> Array[EmbeddedImage] {
+  // Version 7.00未満では空配列を返す
+  if version < 700 {
+    return Array::new()
+  }
+
+  // offsetがデータ範囲外の場合は空配列を返す
+  if offset >= data.length() {
+    return Array::new()
+  }
+
+  let image_data = Bytes::from_array(data.to_array()[offset:data.length()])
+  let reader = Reader::new(data=image_data)
+
+  // データが4バイト未満の場合は空配列を返す
+  if reader.remaining() < 4 {
+    return Array::new()
+  }
+
+  // 画像数を読み取り
+  let count = reader.read_dword()
+
+  // カウントが異常な値の場合は空配列を返す（保護）
+  // 同梱画像は通常数個程度
+  if count > 1000U {
+    return Array::new()
+  }
+
+  let embedded_images = Array::new()
+
+  // 各画像をパース
+  for i in 0..<count.reinterpret_as_int() {
+    let result = parse_single_embedded_image(
+      reader~,
+      index=i.reinterpret_as_uint(),
+    )
+    match result {
+      Some(img) => embedded_images.push(img)
+      None => () // エラー時はスキップして継続
+    }
+  }
+
+  embedded_images
 }

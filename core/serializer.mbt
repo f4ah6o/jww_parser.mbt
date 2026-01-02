@@ -261,8 +261,7 @@ fn write_image(writer~ : Writer, image~ : Image, version~ : UInt) -> Unit {
   writer.write_double(d=image.rotation) // angle
   write_cstring(writer~, s="") // font_name
   // ^@BM形式のコンテンツを構築
-  let content =
-    "^@BM" +
+  let content = "^@BM" +
     image.image_path +
     "," +
     image.width.to_string() +
