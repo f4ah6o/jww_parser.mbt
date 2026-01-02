@@ -83,7 +83,7 @@ jobs:
 
       - name: Build package
         run: |
-          echo "Building jww-parser-mbt@$(node -p "require('./package.json').version")"
+          echo "Building jww-parser@$(node -p "require('./package.json').version")"
           pnpm run build
 
       - name: Verify distribution files
@@ -104,10 +104,10 @@ jobs:
       - name: Verify npm package
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          echo "Verifying npm package: jww-parser-mbt@$PACKAGE_VERSION"
+          echo "Verifying npm package: jww-parser@$PACKAGE_VERSION"
           # Wait a moment for npm to process the new version
           sleep 3
-          npm view jww-parser-mbt@$PACKAGE_VERSION dist.tarball || {
+          npm view jww-parser@$PACKAGE_VERSION dist.tarball || {
             echo "⚠️  Package verification delayed (npm replication)"
           }
 
@@ -117,8 +117,8 @@ jobs:
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           echo "✅ Release successful!"
           echo ""
-          echo "Package: jww-parser-mbt@$PACKAGE_VERSION"
-          echo "npm URL: https://www.npmjs.com/package/jww-parser-mbt/v/$PACKAGE_VERSION"
+          echo "Package: jww-parser@$PACKAGE_VERSION"
+          echo "npm URL: https://www.npmjs.com/package/jww-parser/v/$PACKAGE_VERSION"
           echo "GitHub Release: ${{ github.event.release.html_url }}"
 
       - name: Release failed notification

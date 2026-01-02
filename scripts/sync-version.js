@@ -31,7 +31,7 @@ const examplesPackageJson = JSON.parse(readFileSync(examplesPackagePath, 'utf8')
 
 // Update versions
 moonModJson.version = version;
-examplesPackageJson.dependencies['jww-parser-mbt'] = `^${version}`;
+examplesPackageJson.dependencies['jww-parser'] = `^${version}`;
 
 // Write back
 writeFileSync(moonModPath, JSON.stringify(moonModJson, null, 2) + '\n');

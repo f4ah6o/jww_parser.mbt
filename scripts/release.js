@@ -133,9 +133,9 @@ async function main() {
     // Verify publish
     console.log('\n▸ Verifying npm publish...');
     await new Promise(resolve => setTimeout(resolve, 3000)); // Wait for registry
-    const npmVersion = runCommandSilent(`npm view jww-parser-mbt version`);
+    const npmVersion = runCommandSilent(`npm view jww-parser version`);
     if (npmVersion === newVersion) {
-      console.log(`✓ Verified: jww-parser-mbt@${newVersion} is live on npm`);
+      console.log(`✓ Verified: jww-parser@${newVersion} is live on npm`);
     } else {
       console.log(`⚠ Registry shows ${npmVersion}, expected ${newVersion} (may need time to propagate)`);
     }
@@ -207,7 +207,7 @@ async function main() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('');
     console.log('Published:');
-    console.log(`  📦 npm: https://www.npmjs.com/package/jww-parser-mbt/v/${newVersion}`);
+    console.log(`  📦 npm: https://www.npmjs.com/package/jww-parser/v/${newVersion}`);
     console.log(`  🏷️  Tag: v${newVersion}`);
     console.log(`  🔗 Repo: https://github.com/f4ah6o/jww_parser.mbt`);
 
@@ -219,7 +219,7 @@ async function main() {
     console.log(`  git checkout package.json moon.mod.json examples/package.json`);
     console.log('');
     console.log('If npm publish succeeded, you may need to deprecate the version:');
-    console.log(`  npm deprecate jww-parser-mbt@${newVersion} "Released in error"`);
+    console.log(`  npm deprecate jww-parser@${newVersion} "Released in error"`);
   }
 
   rl.close();
