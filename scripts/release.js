@@ -106,7 +106,24 @@ async function main() {
     }
     console.log('✓ Build outputs verified');
 
-    // 4. npm publish
+    // 4. Git commit (version files)
+    console.log('\n━━━ Git Phase (Version Files) ━━━');
+
+    if (!runCommand(
+      'git add package.json moon.mod.json examples/package.json',
+      'Staging version files'
+    )) {
+      throw new Error('Failed to stage version files');
+    }
+
+    if (!runCommand(
+      `git commit -m "chore(release): bump version to ${newVersion}"`,
+      'Creating git commit for version bump'
+    )) {
+      throw new Error('Failed to create git commit');
+    }
+
+    // 5. npm publish
     console.log('\n━━━ Publish Phase ━━━');
 
     if (!runCommand('pnpm publish --otp $(op item get "npmjs" --otp)', 'Publishing to npm')) {
@@ -123,28 +140,32 @@ async function main() {
       console.log(`⚠ Registry shows ${npmVersion}, expected ${newVersion} (may need time to propagate)`);
     }
 
-    // 5. Update examples/pnpm-lock.yaml
+    // 6. Update examples/pnpm-lock.yaml
     console.log('\n━━━ Examples Update Phase ━━━');
 
     if (!runCommand('pnpm install --filter examples', 'Updating examples/pnpm-lock.yaml')) {
       console.log('⚠ Failed to update examples lock file (continuing anyway)');
     }
 
-    // 6. Git commit, tag, and push
-    console.log('\n━━━ Git Phase ━━━');
+    // 7. Git commit (lock file) + tag + push
+    console.log('\n━━━ Git Phase (Tag & Push) ━━━');
 
-    if (!runCommand(
-      'git add package.json moon.mod.json examples/package.json examples/pnpm-lock.yaml',
-      'Staging changes'
-    )) {
-      throw new Error('Failed to stage changes');
-    }
+    // Check if lock file changed
+    const lockChanged = runCommandSilent('git diff --name-only examples/pnpm-lock.yaml');
+    if (lockChanged) {
+      if (!runCommand(
+        'git add examples/pnpm-lock.yaml',
+        'Staging examples/pnpm-lock.yaml'
+      )) {
+        throw new Error('Failed to stage lock file');
+      }
 
-    if (!runCommand(
-      `git commit -m "chore(release): bump version to ${newVersion}"`,
-      'Creating git commit'
-    )) {
-      throw new Error('Failed to create git commit');
+      if (!runCommand(
+        `git commit -m "chore(release): update examples lock file for ${newVersion}"`,
+        'Creating git commit for lock file'
+      )) {
+        throw new Error('Failed to create git commit for lock file');
+      }
     }
 
     if (!runCommand(`git tag v${newVersion}`, `Creating git tag v${newVersion}`)) {
