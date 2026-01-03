@@ -18,8 +18,8 @@ importers:
   examples:
     dependencies:
       jww-parser:
-        specifier: ^2026.1.3
-        version: 2026.1.3
+        specifier: file:../jww-parser-2026.1.4.tgz
+        version: file:jww-parser-2026.1.4.tgz
     devDependencies:
       typescript:
         specifier: ^5.9.3
@@ -416,8 +416,9 @@ packages:
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
     os: [darwin]
 
-  jww-parser@2026.1.3:
-    resolution: {integrity: sha512-zbPKgeftYieffELE2E4sTZvI6VTYSE4LzHzCBgy+rZSByZHMI/fkp7Q5YkzmxmierHDSR2ftTKbRzp47XRgCcA==}
+  jww-parser@file:jww-parser-2026.1.4.tgz:
+    resolution: {integrity: sha512-0/KrzJvRvffWUR3mhvEWdx1/x69b5opYAxKTGyNdXoesARmKuBan2s2UL1yZ9JalLqIDCmIUrLQgeK9Djks8hQ==, tarball: file:jww-parser-2026.1.4.tgz}
+    version: 2026.1.4
 
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
@@ -758,7 +759,7 @@ snapshots:
   fsevents@2.3.3:
     optional: true
 
-  jww-parser@2026.1.3: {}
+  jww-parser@file:jww-parser-2026.1.4.tgz: {}
 
   nanoid@3.3.11: {}
 
