@@ -112,8 +112,8 @@ async function main() {
     }
     console.log('✓ Build outputs verified');
 
-    // 4. Update examples/pnpm-lock.yaml using local tarball
-    console.log('\n━━━ Examples Lock Update Phase ━━━');
+    // 4. Update pnpm-lock.yaml using local tarball
+    console.log('\n━━━ Lock Update Phase ━━━');
 
     const tarballName = `jww-parser-${newVersion}.tgz`;
     const tarballPath = join(rootDir, tarballName);
@@ -131,14 +131,13 @@ async function main() {
 
     // Temporarily modify examples/package.json to use local tarball
     const examplesPackageJson = JSON.parse(readFileSync(examplesPackagePath, 'utf8'));
-    const originalJwwParserVersion = examplesPackageJson.dependencies['jww-parser'];
     examplesPackageJson.dependencies['jww-parser'] = `file:../${tarballName}`;
     writeFileSync(examplesPackagePath, JSON.stringify(examplesPackageJson, null, 2) + '\n');
     console.log(`  Temporarily set examples/package.json to use file:../${tarballName}`);
 
-    // Update lock file
-    if (!runCommand('pnpm install --filter examples', 'Updating examples/pnpm-lock.yaml')) {
-      throw new Error('Failed to update examples lock file');
+    // Update lock file (workspace uses root pnpm-lock.yaml)
+    if (!runCommand('pnpm install', 'Updating pnpm-lock.yaml')) {
+      throw new Error('Failed to update lock file');
     }
 
     // Restore examples/package.json to use registry version
@@ -154,7 +153,7 @@ async function main() {
     console.log('\n━━━ Git Phase (Version Files) ━━━');
 
     if (!runCommand(
-      'git add package.json moon.mod.json examples/package.json examples/pnpm-lock.yaml',
+      'git add package.json moon.mod.json examples/package.json pnpm-lock.yaml',
       'Staging version files and lock file'
     )) {
       throw new Error('Failed to stage version files');
