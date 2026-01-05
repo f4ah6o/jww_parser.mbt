@@ -61,8 +61,8 @@ test "default print settings" {
   let doc = Document::default()
   let ps = doc.print_settings
   inspect(ps.origin_x, content="0")
-  inspect(ps.origin_y,   content="0")
-  inspect(ps.scale,      content="1")
+  inspect(ps.origin_y, content="0")
+  inspect(ps.scale, content="1")
   inspect(ps.rotation_setting, content="0")
 }
 
