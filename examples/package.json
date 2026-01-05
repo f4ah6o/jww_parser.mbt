@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "jww-parser": "^2026.1.5"
+    "jww-parser": "^2026.1.6"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

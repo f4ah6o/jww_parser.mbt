@@ -1,9 +1,10 @@
 {
   "name": "jww-parser",
-  "version": "2026.1.5",
+  "version": "2026.1.6",
   "description": "JWW file parser with JSON output powered by MoonBit",
   "author": "f12o",
   "license": "AGPL-3.0",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/f4ah6o/jww_parser.mbt.git"
