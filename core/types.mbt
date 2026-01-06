@@ -21,6 +21,33 @@ pub struct EntityBase {
 } derive(Show, Eq)
 
 ///|
+/// RGB色 (0-255)
+pub struct Rgb {
+  r : Byte
+  g : Byte
+  b : Byte
+} derive(Show, Eq)
+
+///|
+/// 基本線色(1-8)と補助線色(9)を既定RGBに変換する
+///
+/// 既定値は Jw_win.Jwf (Sample) の画面表示色を参照
+pub fn pen_color_to_rgb(pen_color : UInt16) -> Rgb? {
+  match pen_color {
+    1 => Some({ r: 0, g: 192, b: 192 })
+    2 => Some({ r: 255, g: 255, b: 255 })
+    3 => Some({ r: 0, g: 192, b: 0 })
+    4 => Some({ r: 192, g: 192, b: 0 })
+    5 => Some({ r: 192, g: 0, b: 192 })
+    6 => Some({ r: 0, g: 0, b: 255 })
+    7 => Some({ r: 0, g: 128, b: 128 })
+    8 => Some({ r: 255, g: 0, b: 128 })
+    9 => Some({ r: 255, g: 128, b: 255 })
+    _ => None
+  }
+}
+
+///|
 /// 直線エンティティ (JWWクラス: CDataSen)
 pub struct Line {
   base : EntityBase

@@ -71,6 +71,49 @@ test "default layer" {
 }
 
 ///|
+/// 基本線色のRGB変換
+test "pen color to rgb" {
+  inspect(
+    pen_color_to_rgb(1),
+    content="Some({r: b'\\x00', g: b'\\xC0', b: b'\\xC0'})",
+  )
+  inspect(
+    pen_color_to_rgb(2),
+    content="Some({r: b'\\xFF', g: b'\\xFF', b: b'\\xFF'})",
+  )
+  inspect(
+    pen_color_to_rgb(3),
+    content="Some({r: b'\\x00', g: b'\\xC0', b: b'\\x00'})",
+  )
+  inspect(
+    pen_color_to_rgb(4),
+    content="Some({r: b'\\xC0', g: b'\\xC0', b: b'\\x00'})",
+  )
+  inspect(
+    pen_color_to_rgb(5),
+    content="Some({r: b'\\xC0', g: b'\\x00', b: b'\\xC0'})",
+  )
+  inspect(
+    pen_color_to_rgb(6),
+    content="Some({r: b'\\x00', g: b'\\x00', b: b'\\xFF'})",
+  )
+  inspect(
+    pen_color_to_rgb(7),
+    content="Some({r: b'\\x00', g: b'\\x80', b: b'\\x80'})",
+  )
+  inspect(
+    pen_color_to_rgb(8),
+    content="Some({r: b'\\xFF', g: b'\\x00', b: b'\\x80'})",
+  )
+  inspect(
+    pen_color_to_rgb(9),
+    content="Some({r: b'\\xFF', g: b'\\x80', b: b'\\xFF'})",
+  )
+  inspect(pen_color_to_rgb(0), content="None")
+  inspect(pen_color_to_rgb(10), content="None")
+}
+
+///|
 /// Entity::type_name の IMAGE 対応確認
 /// 注: Image構造体は内部関数でのみ生成されるため、間接的にテスト
 
