@@ -2,7 +2,7 @@
   "is-main": true,
   "import": [
     {
-      "path": "f4ah6o/jww_parser",
+      "path": "horideicom/jww_parser",
       "alias": "lib"
     }
   ]

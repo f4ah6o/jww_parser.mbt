@@ -1,11 +1,10 @@
-name: Publish to npm
+name: Release build (no npm publish)
 
 on:
   release:
     types: [published]
 
 permissions:
-  id-token: write
   contents: read
 
 concurrency:
@@ -14,7 +13,7 @@ concurrency:
 
 jobs:
   publish:
-    name: Publish to npm Registry
+    name: Build on release
     runs-on: ubuntu-latest
 
     steps:
@@ -105,22 +104,6 @@ jobs:
           [ -f dist/index.d.ts ] || { echo "❌ Missing dist/index.d.ts"; exit 1; }
           echo "✅ All distribution files present"
 
-      - name: Publish to npm with provenance
-        run: |
-          echo "Publishing to npm registry..."
-          npm publish --provenance --access public
-          echo "✅ Successfully published to npm"
-
-      - name: Verify npm package
-        run: |
-          PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          echo "Verifying npm package: jww-parser@$PACKAGE_VERSION"
-          # Wait a moment for npm to process the new version
-          sleep 3
-          npm view jww-parser@$PACKAGE_VERSION dist.tarball || {
-            echo "⚠️  Package verification delayed (npm replication)"
-          }
-
       - name: Release summary
         if: success()
         run: |
@@ -128,7 +111,6 @@ jobs:
           echo "✅ Release successful!"
           echo ""
           echo "Package: jww-parser@$PACKAGE_VERSION"
-          echo "npm URL: https://www.npmjs.com/package/jww-parser/v/$PACKAGE_VERSION"
           echo "GitHub Release: ${{ github.event.release.html_url }}"
 
       - name: Release failed notification

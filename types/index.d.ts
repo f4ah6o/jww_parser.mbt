@@ -1,6 +1,6 @@
 /**
  * JWW Parser - TypeScript Type Definitions
- * @see https://github.com/fu2hito/jww_parser.mbt
+ * @see https://github.com/horideicom/jww_parser.mbt
  */
 
 /**

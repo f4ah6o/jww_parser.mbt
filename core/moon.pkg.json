@@ -1,6 +1,6 @@
 {
   "import": [
-    { "path": "f4ah6o/encoding_sjis", "alias": "encoding_sjis" }
+    { "path": "horideicom/encoding_sjis", "alias": "encoding_sjis" }
   ],
   "warn-list": "-6"
 }

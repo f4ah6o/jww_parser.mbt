@@ -18,8 +18,8 @@ console.log('Patching', jsFile);
 let content = fs.readFileSync(jsFile, 'utf-8');
 
 // read_double 関数定義を探して置換（$ の数はビルドごとに変わる可能性があるため寛容にマッチ）
-const oldPattern = /function f4ah6o\$jww_parser\$core\$+\$?Reader\$read_double\(self\) \{[\s\S]*?\n\}/;
-const newFunction = `function f4ah6o$jww_parser$core$Reader$read_double(self) {
+const oldPattern = /function horideicom\$jww_parser\$core\$+\$?Reader\$read_double\(self\) \{[\s\S]*?\n\}/;
+const newFunction = `function horideicom$jww_parser$core$Reader$read_double(self) {
   // DataView.getFloat64 を使用して IEEE 754 double を読み取る
   const buffer = new ArrayBuffer(8);
   const view = new DataView(buffer);
@@ -37,8 +37,8 @@ if (oldPattern.test(content)) {
 }
 
 // すべての関数呼び出し箇所も置換（$ の数のバリエーションに対応）
-const oldCallPattern = /f4ah6o\$jww_parser\$core\$+\$?Reader\$read_double/g;
-const newCallName = `f4ah6o$jww_parser$core$Reader$read_double`;
+const oldCallPattern = /horideicom\$jww_parser\$core\$+\$?Reader\$read_double/g;
+const newCallName = `horideicom$jww_parser$core$Reader$read_double`;
 
 const beforeCallCount = (content.match(oldCallPattern) || []).length;
 content = content.replace(oldCallPattern, newCallName);

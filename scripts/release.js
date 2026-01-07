@@ -35,23 +35,13 @@ function runCommandSilent(cmd) {
 }
 
 async function main() {
-  // Check if npm login is configured
-  const npmUser = runCommandSilent('npm whoami');
-  if (!npmUser) {
-    console.error('❌ npm login required');
-    console.error('Please run: npm login');
-    rl.close();
-    process.exit(1);
-  }
-
   const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
   const currentVersion = packageJson.version;
   const suggestedVersion = suggestNextNpmVersion();
   const suggestedMooncakesVersion = toMooncakesVersion(suggestedVersion);
   const currentMooncakesVersion = toMooncakesVersion(currentVersion);
 
-  console.log(`\n✓ Logged in as: ${npmUser}`);
-  console.log(`📦 Current version: ${currentVersion} (npm), ${currentMooncakesVersion} (mooncakes)`);
+  console.log(`📦 Current version: ${currentVersion} (package), ${currentMooncakesVersion} (mooncakes)`);
   console.log(`📅 Suggested next version: ${suggestedVersion} (npm), ${suggestedMooncakesVersion} (mooncakes)`);
   console.log('');
 
@@ -73,10 +63,9 @@ async function main() {
   console.log(`  2. Update moon.mod.json to ${mooncakesVersion}`);
   console.log(`  3. Sync examples/package.json`);
   console.log(`  4. Build (moon build → rolldown → types)`);
-  console.log(`  5. npm publish`);
-  console.log(`  6. Update examples/pnpm-lock.yaml`);
-  console.log(`  7. Git commit, tag, and push`);
-  console.log(`  8. Create GitHub Release (optional)`);
+  console.log(`  5. Update examples/pnpm-lock.yaml`);
+  console.log(`  6. Git commit, tag, and push`);
+  console.log(`  7. Create GitHub Release (optional)`);
   console.log('');
 
   const confirm = await ask('Continue? (y/N): ');
@@ -128,31 +117,14 @@ async function main() {
       throw new Error('Failed to create git commit');
     }
 
-    // 5. npm publish
-    console.log('\n━━━ Publish Phase ━━━');
-
-    if (!runCommand('pnpm publish --otp $(op item get "npmjs" --otp)', 'Publishing to npm')) {
-      throw new Error('npm publish failed');
-    }
-
-    // Verify publish
-    console.log('\n▸ Verifying npm publish...');
-    await new Promise(resolve => setTimeout(resolve, 3000)); // Wait for registry
-    const npmVersion = runCommandSilent(`npm view jww-parser version`);
-    if (npmVersion === versionToUse) {
-      console.log(`✓ Verified: jww-parser@${versionToUse} is live on npm`);
-    } else {
-      console.log(`⚠ Registry shows ${npmVersion}, expected ${versionToUse} (may need time to propagate)`);
-    }
-
-    // 6. Update examples/pnpm-lock.yaml
+    // 5. Update examples/pnpm-lock.yaml
     console.log('\n━━━ Examples Update Phase ━━━');
 
     if (!runCommand('pnpm install --filter examples', 'Updating examples/pnpm-lock.yaml')) {
       console.log('⚠ Failed to update examples lock file (continuing anyway)');
     }
 
-    // 7. Git commit (lock file) + tag + push
+    // 6. Git commit (lock file) + tag + push
     console.log('\n━━━ Git Phase (Tag & Push) ━━━');
 
     // Check if lock file changed
@@ -199,7 +171,7 @@ async function main() {
       if (!releaseCreated) {
         console.log('');
         console.log('⚠️  GitHub Release creation failed');
-        console.log(`   Create manually: https://github.com/f4ah6o/jww_parser.mbt/releases/new?tag=v${versionToUse}`);
+        console.log(`   Create manually: https://github.com/horideicom/jww_parser.mbt/releases/new?tag=v${versionToUse}`);
       }
     } else {
       console.log('Skipping GitHub Release creation');
@@ -212,9 +184,8 @@ async function main() {
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('');
     console.log('Published:');
-    console.log(`  📦 npm: https://www.npmjs.com/package/jww-parser/v/${versionToUse}`);
     console.log(`  🏷️  Tag: v${versionToUse}`);
-    console.log(`  🔗 Repo: https://github.com/f4ah6o/jww_parser.mbt`);
+    console.log(`  🔗 Repo: https://github.com/horideicom/jww_parser.mbt`);
 
   } catch (error) {
     console.error('\n❌ Release failed:', error.message);
@@ -223,8 +194,6 @@ async function main() {
     console.log(`  git reset --soft HEAD~1             # Undo last commit (if created)`);
     console.log(`  git checkout package.json moon.mod.json examples/package.json`);
     console.log('');
-    console.log('If npm publish succeeded, you may need to deprecate the version:');
-    console.log(`  npm deprecate jww-parser@${versionToUse} "Released in error"`);
   }
 
   rl.close();

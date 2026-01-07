@@ -1,6 +1,5 @@
-# f4ah6o/jww_parser
+# horideicom/jww_parser
 
-[![npm version](https://badge.fury.io/js/jww-parser.svg)](https://www.npmjs.com/package/jww-parser)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 
 JW-CADファイル（*.jww）をパースし、DXF形式に変換するライブラリです。MoonBitで実装されており、WebAssembly対応によりブラウザ環境でも高速に動作します。
@@ -15,10 +14,21 @@ JW-CADファイル（*.jww）をパースし、DXF形式に変換するライブ
 
 ## インストール
 
+### MoonBit (mooncakes)
+
 ```bash
-pnpm add jww-parser
-# または
-npm install jww-parser
+moon add horideicom/jww_parser
+```
+
+### JavaScript/TypeScript
+
+npmへのpublishは停止中のため、リポジトリからビルドして利用してください。
+
+```bash
+git clone https://github.com/horideicom/jww_parser.mbt
+cd jww_parser.mbt
+pnpm install
+pnpm run build
 ```
 
 ## 使い方
@@ -145,7 +155,7 @@ pnpm run dev
 
 ```bash
 # リポジトリのクローン
-git clone https://github.com/f4ah6o/jww_parser.mbt.git
+git clone https://github.com/horideicom/jww_parser.mbt.git
 cd jww_parser.mbt
 
 # 依存関係のインストール

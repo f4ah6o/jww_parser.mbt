@@ -1,13 +1,13 @@
 {
-  "name": "f4ah6o/jww_parser",
+  "name": "horideicom/jww_parser",
   "version": "0.202601.8",
   "deps": {
     "moonbitlang/quickcheck": "0.9.8",
-    "f4ah6o/encoding_sjis": "*"
+    "horideicom/encoding_sjis": "*"
   },
   "preferred-target": "js",
   "readme": "README.mbt.md",
-  "repository": "https://github.com/f4ah6o/jww_parser.mbt.git",
+  "repository": "https://github.com/horideicom/jww_parser.mbt.git",
   "license": "AGPL-3.0",
   "keywords": [],
   "description": ""
