@@ -2,7 +2,7 @@
   "name": "horideicom/jww_parser",
   "version": "0.202601.8",
   "deps": {
-    "moonbitlang/quickcheck": "0.9.8",
+    "moonbitlang/quickcheck": "0.9.10",
     "horideicom/encoding_sjis": "*"
   },
   "preferred-target": "js",
