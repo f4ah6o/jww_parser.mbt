@@ -1,6 +1,6 @@
 {
   "name": "horideicom/jww_parser",
-  "version": "0.202601.8",
+  "version": "0.202602.0",
   "deps": {
     "moonbitlang/quickcheck": "0.9.10",
     "horideicom/encoding_sjis": "*"

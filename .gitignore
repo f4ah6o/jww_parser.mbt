@@ -5,5 +5,6 @@ target/
 node_modules/
 dist/
 .env
-*.mbti
-pkg.generated.mbti
+
+target
+_build/
